@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Care Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background: url('images/purses.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    #pet {
+      font-size: 100px;
+    }
+    .stat {
+      margin: 20px;
+      display: inline-block;
+    }
+    .battery {
+      width: 40px;
+      height: 120px;
+      background-color: #ddd;
+      border: 2px solid #333;
+      border-radius: 5px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      margin: 0 auto;
+    }
+    .fill {
+      width: 100%;
+      background-color: #4caf50;
+      text-align: center;
+      color: white;
+    }
+    .label {
+      margin-top: 5px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #f6d365;
+    }
+    #pet-image {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      margin: 10px;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+    #pet-image:hover {
+      transform: scale(1.2);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    #purse-collection {
+      margin-top: 20px;
+    }
+    .purse {
+      display: inline-block;
+      margin: 10px;
+      padding: 20px;
+      padding-top: 30px;
+      width: 80px;
+      height: 80px;
+      background: #f3e5ab;
+      border: 2px solid #e0b084;
+      border-radius: 10px 10px 30px 30px;
+      position: relative;
+      font-size: 12px;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .purse::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 10px;
+      background: #e0b084;
+      border-radius: 50%;
+      border: 2px solid #e0b084;
+    }
+
+    #ui-alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      display: none;
+      animation: popup 0.5s ease;
+    }
+
+    @keyframes popup {
+      0% {
+        transform: translate(-50%, -60%) scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Take Care of KYY!</h1>
+  <div>
+    <img id="pet-image" src="images/IMG_1250 (1).JPG" alt="Your Pet">
+  </div>
+  <div id="pet">🐶</div>
+
+  <div id="stats">
+    <div class="stat">
+      <div class="battery">
+        <div id="hunger" class="fill" style="height: 50%;">50</div>
+      </div>
+      <div class="label">Hunger</div>
+    </div>
+    <div class="stat">
+      <div class="battery">
+        <div id="energy" class="fill" style="height: 70%;">70</div>
+      </div>
+      <div class="label">Energy</div>
+    </div>
+    <div class="stat">
+      <div class="battery">
+        <div id="mood" class="fill" style="height: 60%;">60</div>
+      </div>
+      <div class="label">Mood</div>
+    </div>
+  </div>
+
+  <div id="actions">
+    <button onclick="feedPet()">🍔 Food</button>
+    <button onclick="buyNewPurse()">👜 New Purse</button>
+    <button onclick="restPet()">🛌 Sleep</button>
+    <button onclick="seeSun()">☀️ See Sun</button>
+    <button onclick="travelPet()">✈️ Travel</button>
+    <button onclick="investorData()">📊 Investor Data</button>
+  </div>
+
+  <div id="purse-collection">
+    <h2>Purse Collection</h2>
+    <div id="purses"></div>
+  </div>
+
+  <div id="ui-alert">Not enough energy to buy a purse!</div>
+
+  <script>
+    const stats = {
+      hunger: 50,
+      energy: 70,
+      mood: 60
+    };
+
+    const purseNames = [
+    "Timeless Totes", 
+    "Ethereal Elegance", 
+    "Vintage Vogue", 
+    "Modern Muse", 
+    "The Luxe Lineage", 
+    "Chic Chronicles", 
+    "Canvas & Class", 
+    "Urban Allure", 
+    "Parisian Promenade", 
+    "Boho Bloom", 
+    "Monochrome Magic", 
+    "Velvet Visions", 
+    "Sleek Statements", 
+    "Renaissance Revival", 
+    "Golden Hour Glam", 
+    "Silhouette Society", 
+    "Crystal Carryalls", 
+    "Nomad Nights", 
+    "Enchanted Essentials", 
+    "Haute Heritage"
+];
+
+    const purseCollection = [];
+
+    function updateStats(stat, value) {
+      stats[stat] = Math.min(100, Math.max(0, stats[stat] + value));
+      const statElement = document.getElementById(stat);
+      statElement.style.height = `${stats[stat]}%`;
+      statElement.textContent = stats[stat];
+
+      // Check for grumpy pet
+      if (stats.hunger <= 10 || stats.energy <= 10 || stats.mood <= 10) {
+        document.getElementById('pet').textContent = '😡';
+      } else {
+        document.getElementById('pet').textContent = '🐶';
+      }
+    }
+
+    function feedPet() {
+      updateStats('hunger', 20);
+      updateStats('mood', 5);
+    }
+
+    function buyNewPurse() {
+      if (stats.energy >= 15) {
+        const newPurse = purseNames[Math.floor(Math.random() * purseNames.length)];
+        purseCollection.push(newPurse);
+        updateStats('mood', 15);
+        updateStats('energy', -25);
+        renderPurses();
+      } else {
+        showAlert("Not enough energy to buy a purse!");
+      }
+    }
+
+    function restPet() {
+      updateStats('energy', 20);
+      updateStats('hunger', -10);
+    }
+
+    function seeSun() {
+      updateStats('mood', 20);
+      updateStats('hunger', -10);
+    }
+
+    function travelPet() {
+      updateStats('mood', 30);
+      updateStats('energy', -15);
+      updateStats('hunger', -10);
+    }
+
+    function investorData() {
+      updateStats('mood', -100);
+      updateStats('energy', -100);
+      updateStats('hunger', -100)
+    }
+
+    function renderPurses() {
+  const purseContainer = document.getElementById('purses');
+  purseContainer.innerHTML = '';
+  purseCollection.forEach(purse => {
+    const purseElement = document.createElement('div');
+    purseElement.className = 'purse';
+
+    const purseIcon = document.createElement('div');
+    purseIcon.className = 'purse-icon';
+    purseIcon.textContent = '👜'; // Add an emoji or icon for the purse.
+
+    purseElement.textContent = purse;
+    purseElement.appendChild(purseIcon);
+    purseContainer.appendChild(purseElement);
+  });
+}
+
+
+
+    function showAlert(message) {
+      const alertBox = document.getElementById('ui-alert');
+      alertBox.textContent = message;
+      alertBox.style.display = 'block';
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+      }, 3000);
+    }
+
+    // Event to decrease stats over time
+    setInterval(() => {
+      updateStats('hunger', -5);
+      updateStats('energy', -3);
+      updateStats('mood', -4);
+    }, 5000);
+  </script>
+</body>
+</html>
