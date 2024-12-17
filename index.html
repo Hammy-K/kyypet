@@ -9,7 +9,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 20px;
-      background: url('purses.jpg') no-repeat center center fixed;
+      background: url('images/purses.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #333;
     }
@@ -55,6 +55,7 @@
       height: 250px;
       border-radius: 50%;
       margin: 10px;
+      border: 5px solid #f5c6cb;
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     }
     #pet-image:hover {
@@ -127,7 +128,7 @@
 <body>
   <h1>Take Care of KYY!</h1>
   <div>
-    <img id="pet-image" src="IMG_1250 (1).JPG" alt="Your Pet">
+    <img id="pet-image" src="images/IMG_1250 (1).JPG" alt="Your Pet">
   </div>
   <div id="pet">🐶</div>
 
@@ -286,7 +287,7 @@
       updateStats('hunger', -5);
       updateStats('energy', -3);
       updateStats('mood', -4);
-    }, 5000);
+    }, 1000);
   </script>
 </body>
 </html>
